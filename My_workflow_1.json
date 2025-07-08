@@ -1,0 +1,151 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "10n-m6Tq3g5a5enDJCeJDqgcFMYOtOpieRmg3BdAFe3k",
+          "mode": "list",
+          "cachedResultName": "Patient Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10n-m6Tq3g5a5enDJCeJDqgcFMYOtOpieRmg3BdAFe3k/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10n-m6Tq3g5a5enDJCeJDqgcFMYOtOpieRmg3BdAFe3k/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        40
+      ],
+      "id": "e01b17af-8c28-412e-86b5-0963bb46a9d9",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "EwBIULLshCdHEghS",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a medical assistant AI. Analyze the following patient record and suggest a suitable treatment plan or next steps based on the diagnosis, vital signs, medication, and notes. Be concise, practical, and safe.\n\nPatient Details:\n- Name:{{ $json.Name }} \n- Age:{{ $json.Age }} \n- Gender:{{ $json.Gender }} \n- Diagnosis:{{ $json.Diagnosis }} \n- Blood Pressure:{{ $json['Blood Pressure'] }} \n- Heart Rate: {{ $json['Heart Rate'] }}\n- Medication:{{ $json.Medication }} \n\n1. Understand the patient's condition based on symptoms, Issue.\n2. Provide a suggested treatment plan for a doctor to review.\n3. Highlight any critical information such as allergies, medications, or urgent symptoms.\n\n\nformat:\npatient details also need\n\nSuggested Treatment Plan:\nList initial treatment steps (e.g., medicine, lifestyle changes, observation).\n\nRecommended Tests:\nMention any lab tests, imaging, or diagnostics the doctor should consider.\n\nWarnings or Precautions:\nList allergies, medication conflicts, or anything needing urgent attention.\n\n prompt for medical details\n\nOkay, I will analyze the provided patient record for Li Wei and suggest a treatment plan.\\n\\n** avoid this message in email\n\nand also avoid symbols like #*/...\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        180,
+        20
+      ],
+      "id": "9c715f47-0bbc-4c79-8185-b61224f219e2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        120,
+        220
+      ],
+      "id": "16bcbb05-e6fd-49da-ac86-64f4d6aca6a6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "nNjqP6gQBR0vnHrh",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "sieongamer06@gmail.com",
+        "subject": "patient details & treatment",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        540,
+        20
+      ],
+      "id": "e3163c42-9c8a-4429-9fde-623d7b060331",
+      "name": "Send a message",
+      "webhookId": "14856adb-65b3-4900-b525-37c6e0d49fa4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "OobZwXmMaTk0nNFc",
+          "name": "Gmail account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ab4f8922-60fd-4104-a13f-d51a75285162",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f586938907d6dbdb8ea7375ff0228c21b21d3869d0993b264dddb0fa4445de54"
+  },
+  "id": "4fulrauME6n3AJaW",
+  "tags": []
+}
